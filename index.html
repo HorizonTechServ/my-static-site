@@ -8,10 +8,6 @@
 
 (function() {
 
-/*
-http://telco-id-silent-auth-d3pdt.nabstract.io:10008/ac/auth-service/openIDConnect/deviceinitiated/%E2%80%A6
-https://telco-id-silent-auth-d3pdt.nabstract.io/ac/auth-service/openIDConnect/deviceinitiated/v1/authorize?client_id=KAYANA_APP1_6eb41b94-2f46-4601-817b-fa6950d49039&scope=dpv%3AFraudPreventionAndDetection%20number-verification%3Adevice-phone-number%3Aread%20openid&response_type=code&prompt=none&redirect_uri=https%3A%2F%2Ftapi.jixie.io%2Ftapi%2Fsmart%2Fcallback%22
-*/
  async function doWork() {
     try {
         let resp = await makeJxNwPromise("https://tapi.jixie.io/tapi/mtjxid", {});
@@ -22,7 +18,7 @@ https://telco-id-silent-auth-d3pdt.nabstract.io/ac/auth-service/openIDConnect/de
             const phone = urlParams.get('phone');
             //9473371924
             let p = encodeURIComponent('tel:+63' + phone);
-            let tcUrl = "https://silent-auth-d3pdt.nabstract.io/ac/auth-service/openIDConnect/deviceinitiated/v1/authorize?client_id=KAYANA_APP1_6eb41b94-2f46-4601-817b-fa6950d49039&scope=dpv%3AFraudPreventionAndDetection%20number-verification%3Adevice-phone-number%3Aread%20openid&response_type=code&prompt=none&redirect_uri=https%3A%2F%2Ftapi.jixie.io%2Ftapi%2Fsmart%2Fcallback&jixie_id=" + encodeURIComponent(resp.client_id);
+            let tcUrl = "http://telco-id-silent-auth-d3pdt.nabstract.io:10008/ac/auth-service/openIDConnect/deviceinitiated/v1/authorize?client_id=KAYANA_APP1_6eb41b94-2f46-4601-817b-fa6950d49039&scope=dpv%3AFraudPreventionAndDetection%20number-verification%3Adevice-phone-number%3Aread%20openid&response_type=code&prompt=none&redirect_uri=https%3A%2F%2Ftapi.jixie.io%2Ftapi%2Fsmart%2Fcallback&jixie_id=" + encodeURIComponent(resp.client_id);
             resp = await makeJxNwPromise(tcUrl, {});
             console.log('final resp:' + JSON.stringify(resp,null,2));
         }
