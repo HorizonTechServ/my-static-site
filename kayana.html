@@ -1,0 +1,119 @@
+
+<html>
+<body>
+<script>
+
+(function() {
+
+/*
+http://telco-id-silent-auth-d3pdt.nabstract.io:10008/ac/auth-service/openIDConnect/deviceinitiated/%E2%80%A6
+https://telco-id-silent-auth-d3pdt.nabstract.io/ac/auth-service/openIDConnect/deviceinitiated/v1/authorize?client_id=KAYANA_APP1_6eb41b94-2f46-4601-817b-fa6950d49039&scope=dpv%3AFraudPreventionAndDetection%20number-verification%3Adevice-phone-number%3Aread%20openid&response_type=code&prompt=none&redirect_uri=https%3A%2F%2Ftapi.jixie.io%2Ftapi%2Fsmart%2Fcallback%22
+*/
+ async function doWork() {
+    try {
+        let resp = await makeJxNwPromise("https://tapi.jixie.io/tapi/mtjxid", {});
+        console.log('jxid:' + JSON.stringify(resp,null,2));
+        if (resp.success  && resp.client_id) {
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const phone = urlParams.get('phone');
+            //9473371924
+            let p = encodeURIComponent('tel:+63' + phone);
+            let tcUrl = "https://silent-auth-d3pdt.nabstract.io/ac/auth-service/openIDConnect/deviceinitiated/v1/authorize?client_id=KAYANA_APP1_6eb41b94-2f46-4601-817b-fa6950d49039&scope=dpv%3AFraudPreventionAndDetection%20number-verification%3Adevice-phone-number%3Aread%20openid&response_type=code&prompt=none&redirect_uri=https%3A%2F%2Ftapi.jixie.io%2Ftapi%2Fsmart%2Fcallback&jixie_id=" + encodeURIComponent(resp.client_id);
+            resp = await makeJxNwPromise(tcUrl, {});
+            console.log('final resp:' + JSON.stringify(resp,null,2));
+        }
+    }
+    catch(e) {
+        console.log(e);
+    }
+ }
+
+ var makeJxNwPromise = function (url, o) { 
+
+    // Create the XHR request
+    var request = new XMLHttpRequest();
+    
+    // Return it as a Promise
+    return new Promise(function (resolve, reject) {
+
+        // Setup our listener to process compeleted requests
+        request.onreadystatechange = function () {
+
+            // Only run if the request is complete
+            if (request.readyState !== 4) return;
+
+            // Process the response
+            if (request.status >= 200 && request.status < 300) {
+                // If successful
+                let result;
+                try {
+                    //for now we assume our tracker endpoints (or the partner id endpoints) always return json.
+                    result = JSON.parse(request.responseText);
+                    resolve(result);
+                    alert("success:"+ JSON.stringify(resp,null,2));
+                }
+                catch(ee) {
+                    
+                    resolve({});
+                }
+            } else {
+                // If failed
+                
+                let resp;
+                try {
+                    resp = JSON.parse(request.responseText);
+                    alert("failed:"+JSON.stringify(resp,null,2));
+                }
+                catch(e) {}
+                reject({
+                    resp: resp, //this is more to support our jixie_fetchwrap_ and to
+                    //emulate the behaviour of the fetch API as soon as possible.
+                    status: request.status,
+                    statusText: request.statusText
+                });
+            }
+
+        };
+
+        // Setup our HTTP request
+        if (window.JXTRTESTENV) {
+            addDebug('network', url);
+        }
+        request.open(o.method || 'GET', url, true);
+
+        if (o.contentType) {
+            request.setRequestHeader('Content-Type', o.contentType);
+        }
+
+        // Set timeout
+        if (o.timeout) {
+            request.timeout = o.timeout;
+            request.ontimeout = function (e) {
+                if (window.JXTRTESTENV) {
+                    addDebug('   ->network', 'failed3');
+                }
+                reject({
+                    status: 408,
+                    statusText: 'Request timeout'
+                });
+            };
+        }
+        request.crossDomain = true;
+        request.withCredentials = (o.withCredentials != undefined ? o.withCredentials: false);
+   
+        // Send the request
+        request.send(o.method === 'POST' ? o.data : null);
+
+    });
+};
+
+ setTimeout(async function() {
+    await doWork();
+
+ }, 2000);
+  // Code to be executed immediately
+})();
+</script>
+</body>
+</html>
